@@ -1649,6 +1649,109 @@ public function getSaleGraphData(Request $request)
 }
 
 
+public function estimateGraphData(Request $request){
+    $validator = Validator::make($request->all(), [
+        "startdate" => "required|date_format:d/m/Y",
+        "enddate" => "required|date_format:d/m/Y|after_or_equal:startdate",
+        "searchfilter" => "nullable|in:daily,weekly,monthly,yearly"
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'message' => 'Validation failed',
+            'errors' => $validator->errors()
+        ], 400);
+    }
+
+    $user = auth()->user();
+
+    $tenant = Tenant::where('user_id', $user->id)->where('isactive', 1)->first();
+    $tenantUnit = TenantUnit::where('tenant_id', $tenant->id)->where('isactive', 1)->first();
+    
+    $startDate = Carbon::createFromFormat('d/m/Y', $request->startdate);
+    $endDate = Carbon::createFromFormat('d/m/Y', $request->enddate);
+    $searchFilter = $request->searchfilter ?? 'daily';
+
+    $xAxis = [];
+    $salesData = [];
+
+    $currentDate = $startDate->copy();
+
+    switch ($searchFilter) {
+        case 'daily':
+            while ($currentDate <= $endDate) {
+                $xAxis[] = $currentDate->format('d/m/Y');
+
+                $salesAmount = Sale::where('tenant_unit_id', $tenantUnit->id)
+                    ->where('status', 'Quotation Open')
+                    ->whereDate('created_at', $currentDate)
+                    ->sum('total_amount');
+                $salesData[] = $salesAmount;
+
+                $currentDate->addDay();
+            }
+            break;
+
+        case 'weekly':
+            while ($currentDate <= $endDate) {
+                $weekStartDate = $currentDate->startOfWeek();
+                $xAxis[] = $weekStartDate->format('d/m/Y');
+
+                $salesAmount = Sale::where('tenant_unit_id', $tenantUnit->id)
+                    ->where('status', 'Quotation Open')
+                    ->whereBetween('created_at', [$weekStartDate, $weekStartDate->endOfWeek()])
+                    ->sum('total_amount');
+                $salesData[] = $salesAmount;
+
+                $currentDate->addWeek();
+            }
+            break;
+
+        case 'monthly':
+            while ($currentDate <= $endDate) {
+                $xAxis[] = $currentDate->format('M Y');
+
+                // Get the total sales for this month
+                $salesAmount = Sale::where('tenant_unit_id', $tenantUnit->id)
+                    ->where('status', 'Quotation Open')
+                    ->whereMonth('created_at', $currentDate->month)
+                    ->whereYear('created_at', $currentDate->year)
+                    ->sum('total_amount');
+                $salesData[] = $salesAmount;
+
+                $currentDate->addMonth();
+            }
+            break;
+
+        case 'yearly':
+            while ($currentDate <= $endDate) {
+                $xAxis[] = $currentDate->format('Y');
+
+                // Get the total sales for this year
+                $salesAmount = Sale::where('tenant_unit_id', $tenantUnit->id)
+                    ->where('status', 'Quotation Open')
+                    ->whereYear('created_at', $currentDate->year)
+                    ->sum('total_amount');
+                $salesData[] = $salesAmount;
+
+                $currentDate->addYear();
+            }
+            break;
+    }
+
+    // Ensure salesData is not empty
+    $maxAmount = !empty($salesData) ? max($salesData) : 0;
+    $yMax = ceil($maxAmount / 500) * 500;
+    $yAxis = range(0, $yMax > 0 ? $yMax : 500, 500);
+
+    return response()->json([
+        'xAxis' => $xAxis,
+        'yAxis' => $yAxis,
+        'data' => $salesData
+    ]);
+}
+
+
 
 }
 

@@ -154,6 +154,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/addpaymentin',[SalesController::class,'addPaymentIn']);
     Route::get('/getpaymentindata',[SalesController::class,'getPaymentInData']);
     Route::post('/updatepaymentin', [SalesController::class, 'updatePaymentIn']);
+    Route::get('/estimategraphdata',[SalesController::class,'estimateGraphData']);
 });
 
 Route::post('/convertquotationtosale', [SalesController::class, 'convertQuotationToSale']);
