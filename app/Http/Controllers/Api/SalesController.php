@@ -1271,11 +1271,96 @@ public function addPaymentIn(Request $request)
 
 
 
-public function getPaymentInData(Request $request){
+public function getPaymentInData(Request $request)
+{
     $user = auth()->user();
+
+    // Validation
+    $validator = Validator::make($request->all(), [
+        'salefilter' => "nullable",
+        "startdate" => "required_if:salefilter,Custom|date_format:d/m/Y",
+        "enddate" => "required_if:salefilter,Custom|date_format:d/m/Y|after_or_equal:startdate",
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'message' => 'Validation failed',
+            'errors' => $validator->errors(),
+        ], 400);
+    }
+
+    try {
+        switch ($request->salefilter) {
+            case "This month":
+                $startdate = \Carbon\Carbon::now()->startOfMonth()->format('Y-m-d');
+                $enddate = \Carbon\Carbon::now()->endOfMonth()->format('Y-m-d');
+                break;
+
+            case "Last month":
+                $startdate = \Carbon\Carbon::now()->subMonth()->startOfMonth()->format('Y-m-d');
+                $enddate = \Carbon\Carbon::now()->subMonth()->endOfMonth()->format('Y-m-d');
+                break;
+
+            case "Last quarter":
+                $currentMonth = \Carbon\Carbon::now()->month;
+                $currentQuarter = ceil($currentMonth / 3);
+                $lastQuarter = $currentQuarter - 1;
+                $year = \Carbon\Carbon::now()->year;
+
+                if ($lastQuarter == 0) {
+                    $lastQuarter = 4;
+                    $year--;
+                }
+
+                $startdate = \Carbon\Carbon::createFromDate($year, ($lastQuarter - 1) * 3 + 1, 1)->startOfMonth()->format('Y-m-d');
+                $enddate = \Carbon\Carbon::createFromDate($year, $lastQuarter * 3, 1)->endOfMonth()->format('Y-m-d');
+                break;
+
+            case "This year":
+                $startdate = \Carbon\Carbon::now()->startOfYear()->format('Y-m-d');
+                $enddate = \Carbon\Carbon::now()->endOfYear()->format('Y-m-d');
+                break;
+
+            case "Custom":
+                $startdate = \Carbon\Carbon::createFromFormat('d/m/Y', $request->startdate)->format('Y-m-d');
+                $enddate = \Carbon\Carbon::createFromFormat('d/m/Y', $request->enddate)->format('Y-m-d');
+                break;
+
+            default:
+                return response()->json([
+                    'message' => 'Invalid filter provided.',
+                ], 400);
+        }
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Date conversion failed',
+            'error' => $e->getMessage(),
+        ], 400);
+    }
+
+    // Tenant and Unit check
     $tenant = Tenant::where('user_id', $user->id)->where('isactive', 1)->first();
+    if (!$tenant) {
+        return response()->json([
+            'message' => 'No active tenant found for this user.',
+        ], 404);
+    }
+
     $tenantUnit = TenantUnit::where('tenant_id', $tenant->id)->where('isactive', 1)->first();
-    $paymentin = Paymentin::where('tenant_unit_id', $tenantUnit->id)->get();
+    if (!$tenantUnit) {
+        return response()->json([
+            'message' => 'No active tenant unit found.',
+        ], 404);
+    }
+
+    // Filter Payment In data by date
+    $paymentinQuery = Paymentin::where('tenant_unit_id', $tenantUnit->id);
+
+    if (!empty($startdate) && !empty($enddate)) {
+        $paymentinQuery->whereBetween('created_at', [$startdate, $enddate]);
+    }
+
+    $paymentin = $paymentinQuery->get();
 
     return response()->json([
         'message' => 'Payment In data retrieved successfully',
@@ -1751,6 +1836,22 @@ public function estimateGraphData(Request $request){
     ]);
 }
 
+
+
+public function getSaleOrder(){
+    $user = auth()->user();
+    $tenant = Tenant::where('user_id', $user->id)->where('isactive', 1)->first();
+    $tenantUnit = TenantUnit::where('tenant_id', $tenant->id)->where('isactive', 1)->first();
+    $sales = Sale::with(['productSales'])
+        ->where('tenant_unit_id', $tenantUnit->id)
+        ->where('status', 'Order Overdue')
+        ->get();
+
+    return response()->json([
+        'message' => 'Sale Order data retrieved successfully',
+        'data' => $sales,
+    ], 200);
+}
 
 
 }

@@ -163,6 +163,7 @@ Route::post('/updatesalequotation', [SalesController::class, 'updateSaleQuotatio
 // Sale Order
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/addsaleorder',[SalesController::class,'addSaleOrder']);
+    Route::get('/getsaleorder',[SalesController::class,'getSaleOrder']);
     Route::post('/deliverychallan',[SalesController::class,'deliveryChallan']);
 });
 
