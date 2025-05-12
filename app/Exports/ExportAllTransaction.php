@@ -9,6 +9,6 @@ class ExportAllTransaction implements FromCollection
     protected $mergedData;
     public function collection()
     {
-        //
+        //    
     }
 }
