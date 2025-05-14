@@ -165,6 +165,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/addsaleorder',[SalesController::class,'addSaleOrder']);
     Route::get('/getsaleorder',[SalesController::class,'getSaleOrder']);
     Route::post('/deliverychallan',[SalesController::class,'deliveryChallan']);
+    Route::get('/getdeliverychallandata',[SalesController::class,'getDliveryChallanData']);
 });
 
 
