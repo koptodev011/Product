@@ -13,6 +13,11 @@ class Productcategory extends Model
         'is_delete'
     ];
 
+    protected $casts = [
+        'tenant_id' => 'integer',
+        'is_delete' => 'integer'
+    ];
+
     public function products()
 {
     return $this->hasMany(Product::class, 'product_category_id');

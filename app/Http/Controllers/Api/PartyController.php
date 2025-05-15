@@ -108,88 +108,98 @@ public function getParties()
 
 
 
+public function addParty(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'party_name' => 'required|string',
+        'tin_number' => 'nullable|string',
+        'phone_number' => 'nullable|numeric|digits:10',
+        'email' => 'nullable',
+        'billing_address' => 'nullable|string',
+        'opening_balance' => 'nullable|numeric',
+        'topayortorecive' => 'nullable|boolean',
+        'creditlimit' => 'nullable|numeric',
+        'shipping_addresses' => 'nullable|array',
+        'shipping_addresses.*.shipping_addresses' => 'nullable|string',
+        // 'addational_fields' => 'nullable|array',
+        // 'addational_fields.*.addational_field_name' => 'nullable|string',
+        // 'addational_fields.*.addational_field_data' => 'nullable|string',
+        'group_id' => 'nullable|numeric',
+    ]);
 
-    public function addParty(Request $request) {
-        $validator = Validator::make($request->all(), [
-            'party_name' => 'required|string',
-            'tin_number' => 'nullable|string',
-            'phone_number' => 'nullable|numeric|digits:10',
-            'email' => 'nullable',
-            'billing_address' => 'nullable|string',
-            'opening_balance' => 'nullable|numeric',
-            'topayortorecive' => 'nullable|boolean',
-            'creditlimit' => 'nullable|numeric',
-            'shipping_addresses' => 'nullable|array',
-            'shipping_addresses.*.shipping_addresses' => 'nullable|string',
-            // 'addational_fields' => 'nullable|array',
-            // 'addational_fields.*.addational_field_name' => 'nullable|string',
-            // 'addatioal_fields.*.addational_field_data' => 'nullable|string',
-            'group_id' => 'nullable|numeric',
-        ]);
+    if ($validator->fails()) {
+        return response()->json([
+            'message' => 'Validation failed',
+            'errors' => $validator->errors()
+        ], 400);
+    }
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 400);
-        }
+    $user = auth()->user();
+    $tenant = Tenant::where('user_id', $user->id)
+        ->where('isactive', 1)
+        ->first();
 
-      
+    if (!$tenant) {
+        return response()->json([
+            'message' => 'Tenant not found or inactive'
+        ], 404);
+    }
 
-        $user = auth()->user(); 
-        $tenant = Tenant::where('user_id', $user->id)
-            ->where('isactive', 1)
-            ->first();
-    
-        if (!$tenant) {
-            return response()->json([
-                'message' => 'Tenant not found or inactive'
-            ], 404);
-        }
-
-        $searchparty = Party::where('email', $request->email)
-        ->where('tenant_id',$tenant->id)
+    $searchparty = Party::where('email', $request->email)
+        ->where('tenant_id', $tenant->id)
         ->where('is_delete', 0)
         ->first();
-        if ($searchparty) {
-            return response()->json([
-                'message' => 'Party with this email already exists'
-            ], 400);
-        }
-        
-        
-        $party = new Party();
-        $party->party_name = $request->party_name;
-        $party->TIN_number = $request->tin_number;
-        $party->email = $request->email;
-        $party->phone_number = $request->phone_number;
-        $party->billing_address = $request->billing_address;
-        $party->opening_balance = $request->opening_balance;
-        $party->topayortorecive = $request->topayortorecive;
-        $party->creditlimit = $request->creditlimit;
-        $party->user_id = $user->id;
-        $party->tenant_id = $tenant->id;
-        $party->group_id = $request->group_id;
-        $party->save();
-        
+
+    if ($searchparty) {
+        return response()->json([
+            'message' => 'Party with this email already exists'
+        ], 400);
+    }
+
+    // ✅ Cast numeric/boolean fields properly
+    $openingBalance = $request->opening_balance !== null ? (int) $request->opening_balance : null;
+    $topayortorecive = $request->topayortorecive !== null ? (bool) $request->topayortorecive : null;
+    $creditLimit = $request->creditlimit !== null ? (int) $request->creditlimit : null;
+    $groupId = $request->group_id !== null ? (int) $request->group_id : null;
+
+    // ✅ Create Party
+    $party = new Party();
+    $party->party_name = $request->party_name;
+    $party->TIN_number = $request->tin_number;
+    $party->email = $request->email;
+    $party->phone_number = $request->phone_number;
+    $party->billing_address = $request->billing_address;
+    $party->opening_balance = $openingBalance;
+    $party->topayortorecive = $topayortorecive;
+    $party->creditlimit = $creditLimit;
+    $party->user_id = $user->id;
+    $party->tenant_id = $tenant->id;
+    $party->group_id = $groupId;
+    $party->save();
+
+    // ✅ Save Shipping Addresses
+    if (is_array($request->shipping_addresses)) {
         foreach ($request->shipping_addresses as $shipping_address) {
             ShippingAddress::create([
-                'shipping_address' => $shipping_address['shipping_addresses'],
+                'shipping_address' => $shipping_address['shipping_addresses'] ?? null,
                 'party_id' => $party->id,
             ]);
         }
-    
-        // foreach ($request->addational_fields as $field) {
-           
-        //     Partyaddationalfields::create([
-        //         'addational_field_name' => $field['addational_field_name'],
-        //         'addational_field_data' => $field['addational_field_data'],
-        //         'party_id' => $party->id,
-        //     ]);
-        // }
-    
-        return response()->json(['message' => 'Party created successfully'], 200);
     }
+
+    // Optional: Save Additional Fields
+    // if (is_array($request->addational_fields)) {
+    //     foreach ($request->addational_fields as $field) {
+    //         Partyaddationalfields::create([
+    //             'addational_field_name' => $field['addational_field_name'] ?? null,
+    //             'addational_field_data' => $field['addational_field_data'] ?? null,
+    //             'party_id' => $party->id,
+    //         ]);
+    //     }
+    // }
+
+    return response()->json(['message' => 'Party created successfully'], 200);
+}
 
 
 

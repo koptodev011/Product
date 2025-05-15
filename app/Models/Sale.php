@@ -15,6 +15,20 @@ class Sale extends Model
         'user_id', 'status','invoice_no','invoice_date', 'due_date','reference_no'
     ];
 
+    protected $casts = [
+        'inoice_no' => 'integer',
+        'tenant_unit_id' => 'integer',
+        'sale_type' => 'integer',
+        'party_id' => 'integer',
+        'phone_number' => 'unsignedBigInteger',
+        'po_number' => 'integer',
+        'reference_no' => 'unsignedBigInteger',
+        'received_amount' => 'integer',
+        'payment_type_id' => 'integer',
+        'total_amount' => 'integer',
+        
+    ];
+
     public function productSales()
     {
         return $this->hasMany(ProductSale::class, 'sale_id');

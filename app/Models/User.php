@@ -26,6 +26,15 @@ class User extends Authenticatable
         'mobile_number'
     ];
 
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'mobile_number' => 'integer',
+        'role_id' => 'integer',
+        'password' => 'hashed',
+        'email' => 'string',
+    ];
+
+
     public function tenants()
     {
         return $this->hasMany(Tenant::class);

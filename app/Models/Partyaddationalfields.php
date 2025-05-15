@@ -12,6 +12,12 @@ class Partyaddationalfields extends Model
         'party_id'
     ];
 
+    protected $casts = [
+        'addational_field_name' => 'string',
+        'addational_field_data' => 'string',
+        'party_id' => 'integer',
+    ];
+
     public function party()
     {
         return $this->belongsTo(Party::class);

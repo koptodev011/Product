@@ -14,6 +14,16 @@ class Productstock extends Model
         'location'
     ];
 
+    protected $casts = [
+        'product_id' => 'integer',
+        'product_stock' => 'float',
+        'at_price' => 'BigInteger',
+        'min_stock' => 'integer',
+        'product_id' => 'integer',
+        'secondary_stock_value' => 'integer',
+        'previous_stock' => 'integer'
+    ];
+
     public function stock()
     {
         return $this->hasOne(Productstock::class);

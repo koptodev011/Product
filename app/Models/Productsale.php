@@ -14,6 +14,19 @@ class Productsale extends Model
         'tax_percentage', 'tax_amount', 'sale_id'
     ];
 
+    protected $casts = [
+        'product_id' => 'integer',
+        'quantity' => 'integer',
+        'amount' => 'integer',
+        'unit_id' => 'integer',
+        'priceperunit' => 'integer',
+        'discount_percentage' => 'integer',
+        'discount_amount' => 'integer',
+        'tax_percentage' => 'integer',
+        'tax_amount' => 'integer',
+        'sale_id' => 'integer'
+    ];
+
     public function sale()
     {
         return $this->belongsTo(Sale::class, 'sale_id');

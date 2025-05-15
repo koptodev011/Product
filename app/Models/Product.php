@@ -17,6 +17,11 @@ class Product extends Model
         'item_code',
         'tax_id'
     ];
+
+
+    protected $casts = [
+     
+    ];
     
     public function unitConversion()
     {

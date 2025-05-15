@@ -25,6 +25,18 @@ class Tenant extends Model
         'isonlinestore'
     ];
 
+    protected $casts = [
+        'business_types_id' => 'integer',
+        'business_categories_id' => 'integer',
+        'state_id' => 'integer',
+        'city_id' => 'integer',
+        'pin_code' => 'integer',
+        'user_id' => 'integer',
+        'phone_number' => 'integer',
+        'isactive' => 'boolean',
+        'isonlinestore' => 'boolean'
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

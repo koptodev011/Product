@@ -10,6 +10,12 @@ class UserTenantUnit extends Model
 
     protected $fillable = ['user_id', 'tenant_id', 'tenant_type'];
 
+    protected $casts = [
+        'user_id' => 'integer',
+        'tenant_id' => 'integer',
+        'tenant_type' => 'string',
+    ];
+
     public function tenantable(): MorphTo
     {
         return $this->morphTo(__FUNCTION__, 'tenant_type', 'tenant_id');
