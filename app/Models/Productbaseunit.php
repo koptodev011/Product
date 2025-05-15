@@ -12,4 +12,10 @@ class Productbaseunit extends Model
         'is_delete',
         'shortname'
     ];
+
+    protected $casts = [
+        'tenant_id' => 'integer',
+        'is_delete' => 'boolean'
+    ];
+
 }

@@ -25,7 +25,16 @@ class TenantUnit extends Model
         'isonlinestore'
     ];
 
-  
+    protected $casts = [
+        'business_type_id' => 'integer',
+        'business_category_id' => 'integer',
+        'state_id' => 'integer',
+        'city_id' => 'integer',
+        'pin_code' => 'integer',
+        'tenant_id' => 'integer',
+        // 'user_id' => 'integer',
+        'isactive' => 'boolean'
+    ];
 
 
     public function user()

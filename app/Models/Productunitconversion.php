@@ -13,6 +13,15 @@ class Productunitconversion extends Model
         'conversion_rate'
     ];
 
+    protected $casts = [
+        'tenant_id' => 'integer',
+        'product_base_unit_id' => 'integer',
+        'product_secondary_unit_id' => 'integer',
+        'conversion_rate' => 'integer',
+        'isactive' => 'integer'
+
+    ];
+
     public function unitConversion()
     {
         return $this->hasOne(Productunitconversion::class);

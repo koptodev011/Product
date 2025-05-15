@@ -11,6 +11,10 @@ class Shippingaddress extends Model
         'party_id'
     ];
 
+    protected $casts = [
+        'party_id' => 'integer'
+    ];
+
     public function party()
     {
         return $this->belongsTo(Party::class);

@@ -33,7 +33,8 @@ class AuthController extends Controller
         }
         
         // Search for user
-        $user = User::where('mobile_number', $request->phone_number)->first();
+       $user = User::where('mobile_number', trim($request->phone_number))->first();
+
         if ($user) {
             $createToken = $user->createToken('auth_token')->plainTextToken;
             return response()->json([

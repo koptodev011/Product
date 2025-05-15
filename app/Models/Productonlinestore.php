@@ -12,6 +12,12 @@ class Productonlinestore extends Model
         'online_product_description'
     ];
 
+    protected $casts = [
+        'product_id' => 'integer',
+        'online_store_price' => 'float',
+        'online_product_description' => 'string'
+    ];
+
     public function onlineStore()
     {
         return $this->hasOne(Productonlinestore::class);

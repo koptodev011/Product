@@ -18,6 +18,14 @@ class Productstockadjectment extends Model
         'details'
     ];
 
+    protected $casts = [
+        'product_id' => 'integer',
+        'stock_quantity' => 'integer',
+        'priceperunit' => 'integer',
+        'addorreduct_product_stock' => 'integer',
+        'productadjectmentdate' => 'datetime',
+    ];
+
     public function product()
     {
         return $this->belongsTo(Product::class);

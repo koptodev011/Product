@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Product;
 
 class Productpurchesprice extends Model
 {
@@ -12,6 +13,12 @@ class Productpurchesprice extends Model
         'withorwithouttax'
     ];
 
+    protected $casts = [
+        'product_purches_price' => 'integer',
+        'withorwithouttax' => 'integer',
+        'product_id' => 'integer'
+    ];
+   
     public function product()
     {
         return $this->belongsTo(Product::class);
