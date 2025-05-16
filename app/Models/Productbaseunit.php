@@ -15,7 +15,7 @@ class Productbaseunit extends Model
 
     protected $casts = [
         'tenant_id' => 'integer',
-        'is_delete' => 'boolean'
+        'is_delete' => 'integer',
     ];
 
 }

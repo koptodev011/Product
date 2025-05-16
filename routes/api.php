@@ -94,12 +94,14 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::post('/editproductdetails', [ProductController::class, 'editProdutDetails']);
 Route::post('/bulkdeleteproducts', [ProductController::class, 'bulkDeleteProducts']);
 
-
-Route::post('/adjectproduct', [ProductController::class, 'adjectProduct']);
+Route::middleware('auth:sanctum')->group(function () { 
 Route::post('/addtaxgroup', [ProductController::class, 'addTaxGroup']);
 Route::get('/gettaxgroup', [ProductController::class, 'getTaxGroup']);
-Route::post('/addtaxrate', [ProductController::class, 'addTaxRate']);
 Route::get('/gettaxrate', [ProductController::class, 'getTaxRate']);
+});
+
+Route::post('/adjectproduct', [ProductController::class, 'adjectProduct']);
+Route::post('/addtaxrate', [ProductController::class, 'addTaxRate']);
 
 // Caterories section
 Route::middleware('auth:sanctum')->group(function () {
