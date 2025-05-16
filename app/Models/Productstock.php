@@ -17,10 +17,10 @@ class Productstock extends Model
     protected $casts = [
         'product_id' => 'integer',
         'product_stock' => 'float',
-        'at_price' => 'BigInteger',
+        'at_price' => 'integer',
         'min_stock' => 'integer',
         'product_id' => 'integer',
-        'secondary_stock_value' => 'integer',
+        'secondaryunit_stock_value' => 'integer',
         'previous_stock' => 'integer'
     ];
 

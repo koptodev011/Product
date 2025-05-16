@@ -15,6 +15,7 @@ use App\Models\Tenant;
 use App\Models\UserTenantUnit;
 use App\Models\TenantUnit;
 use App\Models\Otp;
+use App\Models\Producttaxgroup;
 class AuthController extends Controller
 {
 
@@ -86,6 +87,14 @@ class AuthController extends Controller
         $partygroup->group_name = 'General';
         $partygroup->tenant_id = $tenant->id;
         $partygroup->save();
+
+        $producttaxgroup = new Producttaxgroup();
+        $producttaxgroup->product_tax_group = 'General';
+        $producttaxgroup->tenant_id = $tenant->id;
+        $producttaxgroup->save();
+
+
+
     
         // Generate and store OTP
         $otpCode = rand(100000, 999999);
@@ -418,6 +427,9 @@ public function updateStaffDetails(Request $request)
         'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg',
         'role_id' => 'required|numeric|exists:roles,id'
     ]);
+
+    dd($request->all());
+    
     if ($validator->fails()) {
         return response()->json([
             'message' => 'Validation failed',

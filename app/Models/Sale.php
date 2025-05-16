@@ -16,17 +16,16 @@ class Sale extends Model
     ];
 
     protected $casts = [
-        'inoice_no' => 'integer',
+        'invoice_no' => 'integer',
         'tenant_unit_id' => 'integer',
         'sale_type' => 'integer',
         'party_id' => 'integer',
-        'phone_number' => 'unsignedBigInteger',
+        'phone_number' => 'integer',
         'po_number' => 'integer',
-        'reference_no' => 'unsignedBigInteger',
+        'reference_no' => 'integer',
         'received_amount' => 'integer',
         'payment_type_id' => 'integer',
         'total_amount' => 'integer',
-        
     ];
 
     public function productSales()

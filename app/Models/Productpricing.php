@@ -17,9 +17,9 @@ class Productpricing extends Model
     protected $casts = [
         'product_id' => 'integer',
         'sale_price' => 'float',
-        'withorwithouttax' => 'boolean',
+        'withorwithouttax' => 'integer',
         'discount' => 'float',
-        'percentageoramount' => 'boolean'
+        'percentageoramount' => 'integer'
     ];
 
     public function pricing()

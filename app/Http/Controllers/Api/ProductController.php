@@ -576,6 +576,9 @@ public function deleteProduct($product_id){
 
 
     public function addTaxGroup(Request $request){
+        $user = auth::user();
+        $tenant = Tenant::where('user_id',$user->id)->first();
+
         $validator = Validator::make($request->all(), [
             'product_tax_group' => 'required'
         ]);
@@ -584,6 +587,7 @@ public function deleteProduct($product_id){
         }
         $producttaxgroup = new Producttaxgroup();
         $producttaxgroup->product_tax_group = $request->product_tax_group;
+        $producttaxgroup->tenant_id = $tenant->id;
         $producttaxgroup->save();
         return response()->json(['message' => 'Product tax group created successfully'], 200);
     }
@@ -591,7 +595,9 @@ public function deleteProduct($product_id){
 
 
     public function getTaxGroup(){
-        $producttaxgroups = Producttaxgroup::all();
+        $user = auth::user();
+        $tenant = Tenant::where('user_id',$user->id)->first();
+        $producttaxgroups = Producttaxgroup::where('tenant_id',$tenant->id)->get();
         return response()->json($producttaxgroups, 200);
     }
 
@@ -613,16 +619,29 @@ public function deleteProduct($product_id){
         $producttaxrate->product_tax_rate = $request->tax_rate;
         $producttaxrate->product_tax_group_id = $request->tax_group_id;
         $producttaxrate->save();
+
         return response()->json(['message' => 'Product tax rate created successfully'], 200);
     }
 
     
 
-    public function getTaxRate(){
-        $producttaxrates = Producttaxrate::all();
-        return response()->json($producttaxrates, 200);
-    }
+    // public function getTaxRate(){
+    //     $user = auth::user();
+    //     $tenant = Tenant::where('user_id',$user->id)->first();
+    //     $producttaxrates = Producttaxrate::all();
+    //     return response()->json($producttaxrates, 200);
+    // }
 
+    public function getTaxRate()
+{
+    $user = auth::user();
+    $tenant = Tenant::where('user_id', $user->id)->first();
+    $tenantTaxGroupIds = Producttaxgroup::where('tenant_id', $tenant->id)->pluck('id')->toArray();
+    $producttaxrates = Producttaxrate::whereNull('product_tax_group_id')
+        ->orWhereIn('product_tax_group_id', $tenantTaxGroupIds)
+        ->get();
+    return response()->json($producttaxrates, 200);
+}
 
 
     // Caterories section

@@ -20,7 +20,14 @@ class Product extends Model
 
 
     protected $casts = [
-     
+        'tenant_id' => 'integer',
+        'mrp' => 'integer',
+        'product_base_unit' => 'integer',
+        'product_category_id' => 'integer',
+        'category_id' => 'integer',
+        'tax_id' => 'integer',
+        'productconversion_id' => 'integer',
+        'isonlineproduct' => 'integer',
     ];
     
     public function unitConversion()
