@@ -24,7 +24,7 @@ class Productsale extends Model
         'discount_amount' => 'integer',
         'tax_percentage' => 'integer',
         'tax_amount' => 'integer',
-        'sale_id' => 'integer'
+        'sale_id' => 'integer',
     ];
 
     public function sale()
