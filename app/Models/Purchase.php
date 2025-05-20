@@ -16,7 +16,7 @@ protected $casts = [
     'total_amount' => 'integer',
     'paid_amount' => 'integer',
     'payment_type_id' => 'integer',
-    'invoice_number' => 'integer',
+    'invoice_no' => 'integer',
     'reference_number' => 'integer'
 ];
 public function party()
